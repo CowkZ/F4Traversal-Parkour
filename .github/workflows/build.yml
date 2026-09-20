@@ -18,8 +18,11 @@ jobs:
       - name: Install xmake
         shell: pwsh
         run: |
-          Invoke-WebRequest -Uri "https://xmake.io/install.ps1" -OutFile "install.ps1"
-          powershell -ExecutionPolicy Bypass -File "install.ps1"
+          Invoke-WebRequest -Uri "https://github.com/xmake-io/xmake/releases/latest/download/xmake-windows.exe" -OutFile "xmake.exe"
+          echo "$PWD" >> $GITHUB_PATH
+          # The .exe is a self-installer or portable; for GitHub Actions, we can use the official installer script via a different URL
+          # or just use a known working setup. Let's try the official PowerShell one-liner again with the correct URL.
+          powershell -ExecutionPolicy Bypass -Command "iex (New-Object System.Net.WebClient).DownloadString('https://github.com/xmake-io/xmake/releases/latest/download/install.ps1')"
           echo "$HOME\.xmake\bin" >> $GITHUB_PATH
 
       - name: Configure and Build
