@@ -15,15 +15,10 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install xmake
-        shell: pwsh
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/xmake-io/xmake/releases/latest/download/xmake-windows.exe" -OutFile "xmake.exe"
-          echo "$PWD" >> $GITHUB_PATH
-          # The .exe is a self-installer or portable; for GitHub Actions, we can use the official installer script via a different URL
-          # or just use a known working setup. Let's try the official PowerShell one-liner again with the correct URL.
-          powershell -ExecutionPolicy Bypass -Command "iex (New-Object System.Net.WebClient).DownloadString('https://github.com/xmake-io/xmake/releases/latest/download/install.ps1')"
-          echo "$HOME\.xmake\bin" >> $GITHUB_PATH
+      - name: Setup xmake
+        uses: xmake-io/setup-xmake@v2
+        with:
+          xmakeversion: latest
 
       - name: Configure and Build
         run: |
