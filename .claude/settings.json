@@ -4,8 +4,23 @@
       "Bash(*)",
       "Write(*)",
       "Edit(*)",
+      "Bash(git *)",
       "Bash(gh *)",
-      "Bash(git *)"
+      "Bash(xmake *)",
+      "Bash(xmake)",
+      "Bash(cmake *)",
+      "Bash(ninja *)",
+      "Bash(make *)",
+      "Bash(dotnet *)",
+      "Bash(caprica *)",
+      "Bash(wine *)",
+      "Bash(7z *)",
+      "Bash(zip *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(ls *)",
+      "Bash(find *)"
     ]
   }
 }

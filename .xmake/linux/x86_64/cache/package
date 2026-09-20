@@ -1,0 +1,32 @@
+{
+    spdlog = {
+        version = "v1.16.0",
+        libfiles = "/home/cowk/.xmake/packages/s/spdlog/v1.16.0/c14ddb99b85e4a4e88868400b04d0838/lib/libspdlog.a",
+        license = "MIT",
+        syslinks = "pthread",
+        __requireconfs = {
+            configs = {
+                wchar = true,
+                header_only = false,
+                std_format = true
+            }
+        },
+        sysincludedirs = "/home/cowk/.xmake/packages/s/spdlog/v1.16.0/c14ddb99b85e4a4e88868400b04d0838/include",
+        installdir = "/home/cowk/.xmake/packages/s/spdlog/v1.16.0/c14ddb99b85e4a4e88868400b04d0838",
+        linkdirs = "/home/cowk/.xmake/packages/s/spdlog/v1.16.0/c14ddb99b85e4a4e88868400b04d0838/lib",
+        static = true,
+        __enabled = true,
+        envs = {
+            PATH = {
+                "/home/cowk/.xmake/packages/n/ninja/v1.13.2/0a9451759a4647b5923438b464085dd6/bin",
+                "/home/cowk/.xmake/packages/c/cmake/4.3.4/478c5cdb1d4b47ff91b42b2ceeb382a8/bin"
+            }
+        },
+        links = "spdlog",
+        __requirestr = "spdlog v1.16.0",
+        defines = {
+            "SPDLOG_COMPILED_LIB",
+            "SPDLOG_USE_STD_FORMAT"
+        }
+    }
+}

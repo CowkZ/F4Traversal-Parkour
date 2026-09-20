@@ -1,0 +1,5 @@
+{
+    packages = {
+        "/home/cowk/.xmake/packages/s/spdlog/v1.16.0/c14ddb99b85e4a4e88868400b04d0838"
+    }
+}

@@ -1,0 +1,9 @@
+{
+    recheck = false,
+    options = { },
+    mtimes = {
+        ["xmake.lua"] = 1789938231,
+        ["lib/commonlibf4/xmake.lua"] = 1789948049,
+        ["lib/commonlibf4/lib/commonlib-shared/xmake.lua"] = 1789948050
+    }
+}
