@@ -1,0 +1,20 @@
+# F4Traversal Dev Path
+
+Este arquivo contém os caminhos e instruções para o desenvolvimento do plugin F4Traversal.
+
+## Estrutura do Projeto
+- `src/`: Código fonte C++.
+- `F4SE/Plugins/`: Pasta de saída para a DLL compilada.
+- `xmake.lua`: Configuração do sistema de build (xmake).
+
+## Pipeline de Teste
+1. Compilar (via GitHub Actions ou localmente).
+2. Copiar `F4Traversal.dll` para `Data/F4SE/Plugins/`.
+3. Iniciar via `f4se_loader.exe`.
+4. Pressionar F8 no jogo para testar logs e HUD.
+
+## Objetivos de Implementação
+- [ ] Implementar Raycast para detecção de bordas.
+- [ ] Implementar movimentação do jogador (interpolação).
+- [ ] Disparar animações de escalada.
+- [ ] Migrar constantes para arquivo .ini.
