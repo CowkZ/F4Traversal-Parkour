@@ -16,7 +16,11 @@ jobs:
           submodules: recursive
 
       - name: Install xmake
-        uses: xmake-io/xmake-action@v1
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://xmake.io/install.ps1" -OutFile "install.ps1"
+          powershell -ExecutionPolicy Bypass -File "install.ps1"
+          echo "$HOME\.xmake\bin" >> $GITHUB_PATH
 
       - name: Configure and Build
         run: |
