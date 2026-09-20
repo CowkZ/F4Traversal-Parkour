@@ -5,6 +5,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,21 +13,35 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Baixar CommonLibF4 (versao para o jogo 1.11.221)
+        uses: actions/checkout@v4
         with:
+          repository: libxse/commonlibf4
+          ref: d890b843bc1fd697b790af0f62146a69b87fb213
+          path: lib/commonlibf4
           submodules: recursive
 
-      - name: Setup xmake
-        uses: xmake-io/setup-xmake@v2
+      - uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmakeversion: latest
+          xmake-version: latest
 
-      - name: Configure and Build
+      - name: Compilar
         run: |
-          xmake f -m release
-          xmake -v
+          xmake f -y -m releasedbg
+          xmake -y
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Montar pacote
+        shell: pwsh
+        run: |
+          $dll = Get-ChildItem -Recurse build -Filter F4Traversal.dll | Select-Object -First 1
+          if (-not $dll) { throw "F4Traversal.dll nao encontrada" }
+          New-Item -ItemType Directory -Force -Path dist/F4SE/Plugins | Out-Null
+          Copy-Item $dll.FullName dist/F4SE/Plugins/
+          $pdb = Join-Path $dll.DirectoryName "F4Traversal.pdb"
+          if (Test-Path $pdb) { Copy-Item $pdb dist/F4SE/Plugins/ }
+
+      - uses: actions/upload-artifact@v4
         with:
-          name: F4Traversal-Plugin
-          path: F4SE/Plugins/F4Traversal.dll
+          name: F4Traversal
+          path: dist
