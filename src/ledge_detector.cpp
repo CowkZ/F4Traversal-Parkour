@@ -77,8 +77,33 @@ namespace Traversal
 
     void LedgeDetector::UpdateMarker(const RE::NiPoint3& pos, bool visible)
     {
-        // Implementation for HUDMarkerData projection
-        // In F4, updating HUD markers usually requires accessing the HUDManager
-        // and modifying an existing marker's location.
+        m_screenPos = ProjectWorldToScreen(pos);
+        m_screenPos.visible = visible && m_screenPos.visible;
+    }
+
+    ScreenPos LedgeDetector::ProjectWorldToScreen(const RE::NiPoint3& worldPos)
+    {
+        ScreenPos result = { 0, 0, false };
+        const auto camera = RE::PlayerCamera::GetSingleton();
+        if (!camera) return result;
+
+        // In a real implementation, we would retrieve the View-Projection matrix here.
+        // Since we are implementing the logic flow, we'll stub the matrix multiplication.
+        // The goal is to convert World Space -> View Space -> Clip Space -> Screen Space.
+
+        /*
+        Expected logic:
+        1. Get View Matrix (Camera's inverse transform)
+        2. Get Projection Matrix (FOV, Aspect Ratio, Near/Far planes)
+        3. ClipPos = Projection * View * WorldPos
+        4. If (ClipPos.w <= 0) return {0, 0, false}; // Behind camera
+        5. NDC = ClipPos.xyz / ClipPos.w
+        6. ScreenX = (NDC.x + 1) * 0.5 * ScreenWidth
+        7. ScreenY = (1 - NDC.y) * 0.5 * ScreenHeight
+        */
+
+        // For now, we mark as invisible until the matrix offsets are mapped
+        result.visible = false;
+        return result;
     }
 }
