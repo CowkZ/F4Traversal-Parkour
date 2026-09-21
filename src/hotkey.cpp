@@ -42,14 +42,9 @@ namespace
                 // a acao mexe em estado do jogo: precisa rodar na thread principal
                 if (const auto task = F4SE::GetTaskInterface()) {
                     task->AddTask([] {
-                        // Alternando entre snapshot e teste de detecção para facilitar seu teste
-                        static bool toggle = false;
-                        if (toggle) {
-                            Debug::PlayerSnapshot();
-                        } else {
-                            Debug::TestTraversalDetection();
-                        }
-                        toggle = !toggle;
+                        // Executa ambos os testes de debug simultaneamente para validacao rapida
+                        Debug::PlayerSnapshot();
+                        Debug::TestTraversalDetection();
                     });
                 }
             }
