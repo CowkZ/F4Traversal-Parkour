@@ -2,6 +2,8 @@
 
 #include <numbers>
 #include <format>
+#include <RE/N/NiPoint3.h>
+#include <RE/N/NiQuaternion.h>
 
 namespace Debug
 {
@@ -33,43 +35,34 @@ namespace Debug
         const auto player = RE::PlayerCharacter::GetSingleton();
         if (!player) return;
 
-        // 1. Pegar a posição da câmera (olhos do jogador)
         const auto camera = RE::PlayerCamera::GetSingleton();
         if (!camera) return;
 
-        NiPoint3 startPos;
+        RE::NiPoint3 startPos;
         if (!camera->GetCameraPosition(startPos, true)) return;
 
-        // 2. Calcular o Forward Vector a partir da rotação da câmera
         const auto state = camera->GetCameraCurrentState();
         if (!state) return;
 
-        NiQuaternion rot;
+        RE::NiQuaternion rot;
         state->GetRotation(rot);
 
-        // Converter Quaternion para Forward Vector (Z-Forward no F4)
-        NiPoint3 forwardVec;
+        RE::NiPoint3 forwardVec;
         forwardVec.x = 2.0f * (rot.x * rot.z + rot.w * rot.y);
         forwardVec.y = 2.0f * (rot.y * rot.z - rot.w * rot.x);
         forwardVec.z = 1.0f - 2.0f * (rot.x * rot.x + rot.y * rot.y);
 
-        // 3. Definir o alcance do Raycast (ex: 1.5 metros)
         const float range = 150.0f;
-        NiPoint3 endPos;
+        RE::NiPoint3 endPos;
         endPos.x = startPos.x + (forwardVec.x * range);
         endPos.y = startPos.y + (forwardVec.y * range);
         endPos.z = startPos.z + (forwardVec.z * range);
 
-        // 4. Executar o Raycast usando a engine do jogo
-        // NOTA: BGSInterface::GetRaycast não existe no CommonLibF4.
-        // Temporariamente simulamos a detecção para validar a posição e direção via HUD.
         bool hit = false;
 
         if (hit) {
-            // Implementação real de GetHitObject() virá aqui após mapear a função de raycast do F4
             RE::SendHUDMessage::ShowHUDMessage("[✋] Objeto Detectado!", "", false, false);
         } else {
-            // Feedback na HUD para validar que a função está rodando e os vetores estão corretos
             std::string debugInfo = std::format(
                 "Raycast Debug:\nPos: {:.1f}, {:.1f}, {:.1f}\nDir: {:.2f}, {:.2f}, {:.2f}",
                 startPos.x, startPos.y, startPos.z, forwardVec.x, forwardVec.y, forwardVec.z);
