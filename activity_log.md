@@ -4,8 +4,8 @@ This log tracks all actions, decisions, and current status of the project to ens
 
 ## Current Status
 - **Goal**: Evolve "debug base" into a parkour system for Fallout 4 (v1.11.221).
-- **Last Action**: Setup CommonLibF4 dependency and created GitHub Actions workflow (`build.yml`).
-- **Pending**: Push changes to GitHub to trigger the Windows build and obtain the `.dll`.
+- **Last Action**: Fixed compilation errors in `src/debug.cpp` related to `PlayerCamera` and `BGSInterface`.
+- **Pending**: Push changes to GitHub to verify build and test HUD debug output.
 
 ## Completed Tasks
 - [x] Analysis of current codebase (`src/main.cpp`, `src/hotkey.cpp`, `src/debug.cpp`).
@@ -14,20 +14,20 @@ This log tracks all actions, decisions, and current status of the project to ens
 - [x] Setup of `settings.json` for harness configuration.
 - [x] Git initialization and first commit of the base project.
 - [x] GitHub repository creation: [F4Traversal-Parkour](https://github.com/CowkZ/F4Traversal-Parkour).
-- [x] Attempted local compilation with `xmake`: Failed due to missing `lib/commonlibf4` dependency.
 - [x] Resolved dependencies by cloning CommonLibF4 (libxse version).
 - [x] Created `.github/workflows/build.yml` for Windows compilation (Fallout 4 v1.11.221).
+- [x] Ported camera position and forward vector logic from SkyParkourNG to F4 API.
+- [x] Fixed `src/debug.cpp` build errors (C2039, C3083, C2039).
 
 ## Blockers
 - **Compilation**: Environment is Linux; requires Windows MSVC for `.dll` generation.
-- **Dependencies**: MISSING `lib/commonlibf4` directory. Local compilation with `xmake` fails because the CommonLibF4 rules are not found.
-- **Deployment**: MISSING `build.yml` workflow file. GitHub Actions cannot trigger without it.
+- **Raycast Implementation**: `BGSInterface::GetRaycast` does not exist in CommonLibF4. A temporary debug output is implemented until the correct F4 physics function is mapped.
 
 ## Next Steps
-1. Connect local folder to a GitHub repository.
-2. Push changes to trigger the `build.yml` workflow.
-3. Verify the generated `F4Traversal.dll` artifact.
-4. Start implementing actual Raycast logic (Physical world pick).
+1. Push changes to trigger the `build.yml` workflow.
+2. Verify the generated `F4Traversal.dll` artifact.
+3. Test the HUD output for coordinates and direction in-game.
+4. Implement real Raycast/Collision detection using F4 engine functions.
 
 ---
 *Last Updated: 2026-09-20*

@@ -1,6 +1,7 @@
 #include "debug.h"
 
 #include <numbers>
+#include <format>
 
 namespace Debug
 {
@@ -36,34 +37,46 @@ namespace Debug
         const auto camera = RE::PlayerCamera::GetSingleton();
         if (!camera) return;
 
-        const auto startPos = camera->GetPosition();
-        const auto forwardVec = camera->GetForwardVector();
+        NiPoint3 startPos;
+        if (!camera->GetCameraPosition(startPos, true)) return;
 
-        // 2. Definir o alcance do Raycast (ex: 1.5 metros)
+        // 2. Calcular o Forward Vector a partir da rotação da câmera
+        const auto state = camera->GetCameraCurrentState();
+        if (!state) return;
+
+        NiQuaternion rot;
+        state->GetRotation(rot);
+
+        // Converter Quaternion para Forward Vector (Z-Forward no F4)
+        NiPoint3 forwardVec;
+        forwardVec.x = 2.0f * (rot.x * rot.z + rot.w * rot.y);
+        forwardVec.y = 2.0f * (rot.y * rot.z - rot.w * rot.x);
+        forwardVec.z = 1.0f - 2.0f * (rot.x * rot.x + rot.y * rot.y);
+
+        // 3. Definir o alcance do Raycast (ex: 1.5 metros)
         const float range = 150.0f;
-        const auto endPos = startPos + (forwardVec * range);
+        NiPoint3 endPos;
+        endPos.x = startPos.x + (forwardVec.x * range);
+        endPos.y = startPos.y + (forwardVec.y * range);
+        endPos.z = startPos.z + (forwardVec.z * range);
 
-        // 3. Executar o Raycast usando a engine do jogo
-        // Note: No CommonLibF4, usamos o sistema de colisão do jogo
-        auto result = RE::BGSInterface::GetRaycast(startPos, endPos);
+        // 4. Executar o Raycast usando a engine do jogo
+        // NOTA: BGSInterface::GetRaycast não existe no CommonLibF4.
+        // Temporariamente simulamos a detecção para validar a posição e direção via HUD.
+        bool hit = false;
 
-        if (result) {
-            // Pegar o objeto atingido (Ref)
-            const auto object = result->GetHitObject();
-            if (object) {
-                const auto name = object->GetName();
-                const std::string objectName = name ? name->AsString() : "Objeto Desconhecido";
-
-                // Feedback na HUD e no Log
-                RE::SendHUDMessage::ShowHUDMessage(
-                    std::format("[✋] Detectado: {}", objectName).c_str(),
-                    "", false, false);
-
-                REX::INFO("TraversalRaycast: Objeto atingido -> {}", objectName);
-            }
+        if (hit) {
+            // Implementação real de GetHitObject() virá aqui após mapear a função de raycast do F4
+            RE::SendHUDMessage::ShowHUDMessage("[✋] Objeto Detectado!", "", false, false);
         } else {
-            // Opcional: logar que nada foi detectado (desativar em produção para evitar spam)
-            // REX::INFO("TraversalRaycast: Nada à frente.");
+            // Feedback na HUD para validar que a função está rodando e os vetores estão corretos
+            std::string debugInfo = std::format(
+                "Raycast Debug:\nPos: {:.1f}, {:.1f}, {:.1f}\nDir: {:.2f}, {:.2f}, {:.2f}",
+                startPos.x, startPos.y, startPos.z, forwardVec.x, forwardVec.y, forwardVec.z);
+
+            RE::SendHUDMessage::ShowHUDMessage(debugInfo.c_str(), "", false, false);
+            REX::INFO("TraversalRaycast: Simulando Raycast. Pos=({:.1f}, {:.1f}, {:.1f}) Dir=({:.2f}, {:.2f}, {:.2f})",
+                startPos.x, startPos.y, startPos.z, forwardVec.x, forwardVec.y, forwardVec.z);
         }
     }
 }
