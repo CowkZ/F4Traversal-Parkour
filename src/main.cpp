@@ -1,4 +1,7 @@
 #include "hotkey.h"
+#include "debug.h"
+#include "ledge_detector.h"
+
 
 namespace
 {
@@ -33,6 +36,10 @@ namespace
             // dados do jogo prontos: pode ligar o hotkey de debug
             Hotkey::Start();
         }
+
+        // Update ledge detection every frame
+        Traversal::LedgeDetector::GetSingleton()->Update();
+
     }
 }
 
