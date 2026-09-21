@@ -51,6 +51,7 @@ namespace Traversal
 
         // SOMENTE na thread do jogo (via F4SE::GetTaskInterface()->AddTask).
         void ToggleEnabled();
+        void ToggleProjection();
         void Update();
         void RequestClimb();
         std::string DescribeLast() const;
