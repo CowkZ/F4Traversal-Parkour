@@ -1,0 +1,9 @@
+# .gitignore
+build/
+.xmake/
+*.dll
+*.exe
+*.pdb
+*.obj
+*.log
+.vscode/

@@ -36,10 +36,6 @@ namespace
             // dados do jogo prontos: pode ligar o hotkey de debug
             Hotkey::Start();
         }
-
-        // Update ledge detection every frame
-        Traversal::LedgeDetector::GetSingleton()->Update();
-
     }
 }
 
