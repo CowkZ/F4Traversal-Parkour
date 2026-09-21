@@ -18,15 +18,13 @@
 
 namespace
 {
-    constexpr int kDebugKey = VK_F8;  // troque a tecla aqui
+    constexpr int kDebugKey = VK_F8;
+    constexpr int kToggleKey = VK_F7; // Tecla para ligar/desligar o detector
 
     bool GameHasFocus()
     {
         const auto wnd = ::GetForegroundWindow();
-        if (!wnd) {
-            return false;
-        }
-
+        if (!wnd) return false;
         DWORD pid = 0;
         ::GetWindowThreadProcessId(wnd, &pid);
         return pid == ::GetCurrentProcessId();
@@ -37,18 +35,28 @@ namespace
         bool wasDown = false;
         bool wasSpaceDown = false;
         bool wasProjDown = false;
+        bool wasToggleDown = false;
 
         for (;;) {
             const bool gameFocused = GameHasFocus();
             const bool down = gameFocused && (::GetAsyncKeyState(kDebugKey) & 0x8000) != 0;
             const bool spaceDown = gameFocused && (::GetAsyncKeyState(VK_SPACE) & 0x8000) != 0;
             const bool projDown = gameFocused && (::GetAsyncKeyState(VK_F6) & 0x8000) != 0;
+            const bool toggleDown = gameFocused && (::GetAsyncKeyState(kToggleKey) & 0x8000) != 0;
 
             if (down && !wasDown) {
                 if (const auto task = F4SE::GetTaskInterface()) {
                     task->AddTask([] {
                         Debug::PlayerSnapshot();
                         Debug::TestTraversalDetection();
+                    });
+                }
+            }
+
+            if (toggleDown && !wasToggleDown) {
+                if (const auto task = F4SE::GetTaskInterface()) {
+                    task->AddTask([] {
+                        Traversal::LedgeDetector::GetSingleton()->ToggleEnabled();
                     });
                 }
             }
@@ -72,6 +80,7 @@ namespace
             wasDown = down;
             wasSpaceDown = spaceDown;
             wasProjDown = projDown;
+            wasToggleDown = toggleDown;
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
     }
