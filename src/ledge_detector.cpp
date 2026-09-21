@@ -1,6 +1,6 @@
 #include "ledge_detector.h"
-#include <RE/F4/PlayerCamera.h>
-#include <RE/F4/PlayerCharacter.h>
+#include <RE/P/PlayerCamera.h>
+#include <RE/P/PlayerCharacter.h>
 #include <RE/N/NiPoint3.h>
 #include <RE/N/NiQuaternion.h>
 #include <RE/H/HUDMarkerData.h>
@@ -17,7 +17,6 @@ namespace Traversal
     bool LedgeDetector::PerformRaycast(const RE::NiPoint3& start, const RE::NiPoint3& dir, float range, RE::NiPoint3& outHitPoint, RE::NiPoint3& outNormal)
     {
         // TODO: Implement real hknpWorld raycast.
-        // For now, we simulate a hit if we are facing a certain direction to test the HUD markers.
         return false;
     }
 
@@ -41,22 +40,18 @@ namespace Traversal
         forwardVec.y = 2.0f * (rot.y * rot.z - rot.w * rot.x);
         forwardVec.z = 1.0f - 2.0f * (rot.x * rot.x + rot.y * rot.y);
 
-        // Ledge Detection Logic (3-Ray Method)
         RE::NiPoint3 wallHit, wallNormal;
         if (PerformRaycast(startPos, forwardVec, m_maxReach, wallHit, wallNormal))
         {
-            // 1. Found a wall. Now probe for the top edge.
             RE::NiPoint3 probeStart = { wallHit.x - wallNormal.x * 5.0f, wallHit.y - wallNormal.y * 5.0f, wallHit.z - wallNormal.z * 5.0f };
             RE::NiPoint3 upVec = { 0, 1, 0 };
             RE::NiPoint3 ledgeHit, ledgeNormal;
 
             if (PerformRaycast(probeStart, upVec, 200.0f, ledgeHit, ledgeNormal))
             {
-                // 2. Found a top surface. Verify if it's a ledge.
                 RE::NiPoint3 depthHit, depthNormal;
                 if (!PerformRaycast(ledgeHit, forwardVec, m_ledgeDepthThreshold, depthHit, depthNormal))
                 {
-                    // 3. It's a ledge!
                     m_currentLedge.position = ledgeHit;
                     m_currentLedge.isValid = true;
                     UpdateMarker(ledgeHit, true);
@@ -71,11 +66,6 @@ namespace Traversal
 
     void LedgeDetector::UpdateMarker(const RE::NiPoint3& pos, bool visible)
     {
-        // In a real implementation, we would find the HUDMarkerData array
-        // and update a specific marker's position and visibility.
-        // For now, we log the intent.
-        if (visible) {
-            // REX::INFO("LedgeDetector: Marker visible at ({:.1f}, {:.1f}, {:.1f})", pos.x, pos.y, pos.z);
-        }
+        // Log intent for now
     }
 }
