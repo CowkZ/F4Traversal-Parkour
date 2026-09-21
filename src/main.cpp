@@ -2,7 +2,6 @@
 #include "debug.h"
 #include "ledge_detector.h"
 
-
 namespace
 {
     const char* MessageName(std::uint32_t a_type) noexcept
@@ -24,6 +23,17 @@ namespace
         }
     }
 
+    void UpdateLoop()
+    {
+        if (const auto task = F4SE::GetTaskInterface()) {
+            task->AddTask([] {
+                Traversal::LedgeDetector::GetSingleton()->Update();
+                // Re-schedule ourselves to run every frame (approx)
+                UpdateLoop();
+            });
+        }
+    }
+
     void F4SEAPI OnF4SEMessage(F4SE::MessagingInterface::Message* a_msg)
     {
         if (!a_msg) {
@@ -33,8 +43,8 @@ namespace
         REX::INFO("mensagem F4SE: {} ({})", MessageName(a_msg->type), a_msg->type);
 
         if (a_msg->type == F4SE::MessagingInterface::kGameDataReady) {
-            // dados do jogo prontos: pode ligar o hotkey de debug
             Hotkey::Start();
+            UpdateLoop();
         }
     }
 }
