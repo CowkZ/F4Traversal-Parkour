@@ -76,7 +76,6 @@ namespace Traversal
         void         ResetState();
         void         UpdateMarker(const RE::NiPoint3& a_pos, bool a_visible);
         ScreenPos    ProjectWorldToScreen(const RE::NiPoint3& a_pos);
-        void            ToggleProjection();
 
         LedgeInfo m_currentLedge;
         ScreenPos m_screenPos;

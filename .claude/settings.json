@@ -20,7 +20,13 @@
       "Bash(cp *)",
       "Bash(mv *)",
       "Bash(ls *)",
-      "Bash(find *)"
+      "Bash(find *)",
+      "Bash(ddgr *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(xmake *)"
     ]
   }
 }

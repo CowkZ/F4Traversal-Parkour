@@ -37,3 +37,9 @@
 - `src/ledge_detector.cpp/h`: Ledge detection logic (3-ray method) and state management.
 - `src/hotkey.cpp/h`: Input polling thread (detached).
 - `src/debug.cpp/h`: Debugging utilities and snapshots.
+
+# Pesquisa e Download Autônomo de Dependências
+- Se a compilação via `xmake` falhar por falta de alguma biblioteca, arquivo de cabeçalho (.h / .hpp) ou ferramenta:
+  1. Use o comando `ddgr "termo da busca"` ou `curl` para pesquisar a solução na internet.
+  2. Baixe o repositório ou arquivo necessário usando `git clone`, `wget` ou `curl` para a pasta apropriada do projeto (ex: `lib/`).
+  3. Tente compilar novamente via `xmake` para confirmar a correção.
