@@ -32,7 +32,39 @@ namespace Traversal
         const auto camera = RE::PlayerCamera::GetSingleton();
         if (!player || !camera) return;
 
+        // Handle climbing interpolation
+        if (m_climbState == ClimbState::Interpolating)
+        {
+            // Use a fixed delta or get it from the engine if possible.
+            // For now, we'll use a small constant or estimate frame time.
+            float deltaTime = 0.016f; // Approx 60fps
+            m_interpolationTimer += deltaTime;
+
+            float t = m_interpolationTimer / kClimbDuration;
+            if (t >= 1.0f)
+            {
+                player->SetPosition(m_targetPos, true);
+                m_climbState = ClimbState::OnLedge;
+                REX::INFO("Climb Completed");
+
+                // Return to idle after a short delay or immediately
+                m_climbState = ClimbState::Idle;
+            }
+            else
+            {
+                RE::NiPoint3 currentPos = player->GetPosition();
+                RE::NiPoint3 lerpedPos;
+                lerpedPos.x = currentPos.x + (m_targetPos.x - currentPos.x) * t;
+                lerpedPos.y = currentPos.y + (m_targetPos.y - currentPos.y) * t;
+                lerpedPos.z = currentPos.z + (m_targetPos.z - currentPos.z) * t;
+
+                player->SetPosition(lerpedPos, true);
+            }
+            return; // Skip raycasting while interpolating
+        }
+
         RE::NiPoint3 startPos;
+
         if (!camera->GetCameraPosition(startPos, true)) return;
 
         const auto state = camera->GetCameraCurrentState();
@@ -105,5 +137,24 @@ namespace Traversal
         // For now, we mark as invisible until the matrix offsets are mapped
         result.visible = false;
         return result;
+    }
+
+    void LedgeDetector::RequestClimb()
+    {
+        if (!m_currentLedge.isValid)
+        {
+            REX::INFO("Climb requested but no valid ledge detected");
+            return;
+        }
+
+        const auto player = RE::PlayerCharacter::GetSingleton();
+        if (!player) return;
+
+        REX::INFO("Climb Triggered!");
+
+        m_startPos = player->GetPosition();
+        m_targetPos = m_currentLedge.position;
+        m_interpolationTimer = 0.0f;
+        m_climbState = ClimbState::Interpolating;
     }
 }

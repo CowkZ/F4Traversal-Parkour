@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RE/P/PlayerCharacter.h>
+#include <RE/F4/PlayerCharacter.h>
 #include <RE/N/NiPoint3.h>
 #include <RE/N/NiQuaternion.h>
 #include <RE/H/HUDMarkerData.h>
@@ -9,6 +9,13 @@
 
 namespace Traversal
 {
+    enum class ClimbState
+    {
+        Idle,
+        Interpolating,
+        OnLedge
+    };
+
     struct LedgeInfo
     {
         RE::NiPoint3 position;
@@ -28,6 +35,8 @@ namespace Traversal
         static LedgeDetector* GetSingleton();
 
         void Update();
+        void RequestClimb();
+
         const LedgeInfo& GetCurrentLedge() const { return m_currentLedge; }
         ScreenPos GetLedgeScreenPos() const { return m_screenPos; }
 
@@ -42,5 +51,12 @@ namespace Traversal
         ScreenPos m_screenPos;
         float m_maxReach = 150.0f;
         float m_ledgeDepthThreshold = 20.0f;
+
+        // Climbing state
+        ClimbState m_climbState = ClimbState::Idle;
+        RE::NiPoint3 m_startPos;
+        RE::NiPoint3 m_targetPos;
+        float m_interpolationTimer = 0.0f;
+        static constexpr float kClimbDuration = 0.3f; // seconds
     };
 }

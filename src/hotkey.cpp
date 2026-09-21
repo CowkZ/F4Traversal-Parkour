@@ -34,9 +34,12 @@ namespace
     void PollLoop()
     {
         bool wasDown = false;
+        bool wasSpaceDown = false;
 
         for (;;) {
-            const bool down = GameHasFocus() && (::GetAsyncKeyState(kDebugKey) & 0x8000) != 0;
+            const bool gameFocused = GameHasFocus();
+            const bool down = gameFocused && (::GetAsyncKeyState(kDebugKey) & 0x8000) != 0;
+            const bool spaceDown = gameFocused && (::GetAsyncKeyState(VK_SPACE) & 0x8000) != 0;
 
             if (down && !wasDown) {
                 // a acao mexe em estado do jogo: precisa rodar na thread principal
@@ -49,7 +52,16 @@ namespace
                 }
             }
 
+            if (spaceDown && !wasSpaceDown) {
+                if (const auto task = F4SE::GetTaskInterface()) {
+                    task->AddTask([] {
+                        Traversal::LedgeDetector::GetSingleton()->RequestClimb();
+                    });
+                }
+            }
+
             wasDown = down;
+            wasSpaceDown = spaceDown;
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
     }
