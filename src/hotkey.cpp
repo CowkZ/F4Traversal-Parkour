@@ -1,6 +1,7 @@
 #include "hotkey.h"
 
 #include "debug.h"
+#include "ledge_detector.h"
 
 #include <chrono>
 #include <mutex>
