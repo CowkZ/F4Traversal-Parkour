@@ -14,7 +14,9 @@ Este arquivo contém os caminhos e instruções para o desenvolvimento do plugin
 4. Pressionar F8 no jogo para testar logs e HUD.
 
 ## Objetivos de Implementação
-- [ ] Implementar Raycast para detecção de bordas.
-- [ ] Implementar movimentação do jogador (interpolação).
+- [x] Implementar Raycast para detecção de bordas. (Implementado via hknpWorld/3-Ray Method)
+- [ ] Implementar marcadores visuais de borda (HUD Markers).
+- [ ] Implementar sistema de animações de escalada (Trigger/Playback).
+- [ ] Implementar movimentação do jogador (interpolação para o topo da borda).
 - [ ] Disparar animações de escalada.
 - [ ] Migrar constantes para arquivo .ini.

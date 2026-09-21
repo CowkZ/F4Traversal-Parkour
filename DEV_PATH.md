@@ -6,19 +6,21 @@ Objetivo: Portar as funcionalidades de movimentação avançada (parkour/travers
 ---
 
 ## FASE 1: Engenharia Reversa da Movimentação (Análise)
-- [ ] Identificar a classe de "Movement" ou "Character Controller" no FO4.
-- [ ] Localizar a função de atualização de posição (`Update/Tick`) do jogador.
-- [ ] Comparar a lógica de eixo Z (altura) entre Skyrim e Fallout 4.
+- [x] Identificar a classe de "Movement" ou "Character Controller" no FO4.
+- [x] Localizar a função de atualização de posição (`Update/Tick`) do jogador.
+- [x] Comparar a lógica de eixo Z (altura) entre Skyrim e Fallout 4.
 
 ## FASE 2: Implementação de Low-Level Hooks
-- [ ] Implementar sistema de Hooks/Detours para interceptar funções de física.
-- [ ] Validar hooks através de testes simples (ex: alterar gravidade ou congelar jogador).
-- [ ] Criar a estrutura de estados (`IsClimbing`, `IsSliding`, etc).
+- [x] Implementar sistema de Hooks/Detours para interceptar funções de física.
+- [x] Validar hooks através de testes simples (ex: alterar gravidade ou congelar jogador).
+- [x] Criar a estrutura de estados (`IsClimbing`, `IsSliding`, etc).
 
 ## FASE 3: Portabilidade da Lógica de Gameplay
-- [ ] Implementar detecção de superfícies via Raycasting (detectar paredes).
+- [x] Implementar detecção de superfícies via Raycasting (detectar paredes). -> *Implementado via hknpWorld e Método de 3 Raios.*
+- [ ] Implementar marcadores visuais de borda (HUD Markers/Mãozinha).
+- [ ] Implementar sistema de animações de escalada (Trigger/Playback).
 - [ ] Portar a matemática de vetores de impulso e escalada do mod original.
-- [ ] Vincular as ações a inputs/hotkeys.
+- [x] Vincular as ações a inputs/hotkeys.
 
 ## FASE 4: Polimento e Estabilidade
 - [ ] Ajustar o "Game Feel" (física específica do FO4).

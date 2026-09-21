@@ -21,8 +21,9 @@ namespace Traversal
 
     bool LedgeDetector::PerformRaycast(const RE::NiPoint3& start, const RE::NiPoint3& dir, float range, RE::NiPoint3& outHitPoint, RE::NiPoint3& outNormal)
     {
-        if (!g_RaycastFunc) return false;
-        return g_RaycastFunc(start, dir, range, outHitPoint, outNormal);
+        // The previous REL::ID was an interface, not a function, causing a crash.
+        // We will return false (simulated) until we map the exact hknpWorld::raycast function offset.
+        return false;
     }
 
     void LedgeDetector::Update()
