@@ -5,14 +5,13 @@
 #include <RE/N/NiQuaternion.h>
 #include <RE/H/HUDMarkerData.h>
 #include <REL/Relocation.h>
+#include <RE/B/bhkWorld.h>
+#include <RE/H/hknpWorld.h>
+#include <RE/H/hknpRayCastQuery.h>
+#include <RE/H/hknpRayCastQueryResult.h>
 
 namespace Traversal
 {
-    // Signature for the engine's Raycast function
-    // This is a generalized signature based on Havok/BGS raycast patterns
-    using RaycastFunc = bool(*)(const RE::NiPoint3&, const RE::NiPoint3&, float, RE::NiPoint3&, RE::NiPoint3&);
-    static REL::Relocation<RaycastFunc> g_RaycastFunc{ REL::ID(103892) }; // Using hkaRaycastInterface ID as a base
-
     LedgeDetector* LedgeDetector::GetSingleton()
     {
         static LedgeDetector singleton;
@@ -21,12 +20,53 @@ namespace Traversal
 
     bool LedgeDetector::PerformRaycast(const RE::NiPoint3& start, const RE::NiPoint3& dir, float range, RE::NiPoint3& outHitPoint, RE::NiPoint3& outNormal)
     {
-        // The previous REL::ID was an interface, not a function, causing a crash.
-        // We will return false (simulated) until we map the exact hknpWorld::raycast function offset.
+        // Get the bhkWorld instance
+        // Using the REL ID for GetbhkWorld from IDs.h (2200260)
+        using GetBhkWorldFunc = RE::bhkWorld*(*)();
+        static REL::Relocation<GetBhkWorldFunc> g_GetBhkWorld{ RE::ID::bhkWorld::GetbhkWorld };
+
+        auto bhkWorld = g_GetBhkWorld();
+        if (!bhkWorld) return false;
+
+        // Access the narrow-phase world (m_worldNP at 0x60)
+        // In CommonLibF4, m_worldNP is a hkRefPtr<hknpBSWorld>
+        auto npWorld = bhkWorld->m_worldNP.get();
+        if (!npWorld) return false;
+
+        // Prepare the query
+        RE::hknpRayCastQuery query;
+        query.m_ray.m_origin = { start.x, start.y, start.z, 1.0f };
+        query.m_ray.m_direction = { dir.x, dir.y, dir.z, 0.0f };
+        // Range is handled by the query's internal distance or by clipping the result
+
+        RE::hknpRayCastQueryResult result;
+
+        // We need the castRay method. Since it's a member of hknpWorld, we can call it if defined.
+        // Note: hknpWorld in CommonLibF4 might not have all virtuals wrapped.
+        // We'll try to use the member function if it exists, otherwise we'd need a REL offset.
+        // Based on agent report, npWorld->castRay(query, result) is the intended call.
+        if (npWorld->castRay(query, result))
+        {
+            // Extract hit point and normal
+            // hknpRayCastQueryResult usually contains a fraction and the hit point
+            outHitPoint = { result.m_hitPoint.x, result.m_hitPoint.y, result.m_hitPoint.z };
+            outNormal = { result.m_hitNormal.x, result.m_hitNormal.y, result.m_hitNormal.z };
+
+            // Check if hit is within range
+            float distSq = (outHitPoint.x - start.x) * (outHitPoint.x - start.x) +
+                           (outHitPoint.y - start.y) * (outHitPoint.y - start.y) +
+                           (outHitPoint.z - start.z) * (outHitPoint.z - start.z);
+
+            if (distSq > range * range) return false;
+
+            return true;
+        }
+
         return false;
     }
 
     void LedgeDetector::Update()
+
     {
         const auto player = RE::PlayerCharacter::GetSingleton();
         const auto camera = RE::PlayerCamera::GetSingleton();

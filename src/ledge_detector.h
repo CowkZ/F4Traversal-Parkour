@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RE/P/PlayerCharacter.h>
+#include <RE/F4/PlayerCharacter.h>
 #include <RE/N/NiPoint3.h>
 #include <RE/N/NiQuaternion.h>
 #include <RE/H/HUDMarkerData.h>
