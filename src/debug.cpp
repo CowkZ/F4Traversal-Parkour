@@ -32,8 +32,38 @@ namespace Debug
         const auto player = RE::PlayerCharacter::GetSingleton();
         if (!player) return;
 
-        // Simulando a detecção: mostra a "mãozinha" na HUD para validar o feedback visual
-        RE::SendHUDMessage::ShowHUDMessage("[✋] Superfície Escalável Detectada!", "", false, false);
-        REX::INFO("TraversalTest: Feedback visual de escalada ativado (Simulação).");
+        // 1. Pegar a posição da câmera (olhos do jogador)
+        const auto camera = RE::PlayerCamera::GetSingleton();
+        if (!camera) return;
+
+        const auto startPos = camera->GetPosition();
+        const auto forwardVec = camera->GetForwardVector();
+
+        // 2. Definir o alcance do Raycast (ex: 1.5 metros)
+        const float range = 150.0f;
+        const auto endPos = startPos + (forwardVec * range);
+
+        // 3. Executar o Raycast usando a engine do jogo
+        // Note: No CommonLibF4, usamos o sistema de colisão do jogo
+        auto result = RE::BGSInterface::GetRaycast(startPos, endPos);
+
+        if (result) {
+            // Pegar o objeto atingido (Ref)
+            const auto object = result->GetHitObject();
+            if (object) {
+                const auto name = object->GetName();
+                const std::string objectName = name ? name->AsString() : "Objeto Desconhecido";
+
+                // Feedback na HUD e no Log
+                RE::SendHUDMessage::ShowHUDMessage(
+                    std::format("[✋] Detectado: {}", objectName).c_str(),
+                    "", false, false);
+
+                REX::INFO("TraversalRaycast: Objeto atingido -> {}", objectName);
+            }
+        } else {
+            // Opcional: logar que nada foi detectado (desativar em produção para evitar spam)
+            // REX::INFO("TraversalRaycast: Nada à frente.");
+        }
     }
 }
