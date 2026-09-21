@@ -4,7 +4,6 @@
 #include <RE/N/NiPoint3.h>
 #include <RE/N/NiQuaternion.h>
 #include <RE/H/HUDMarkerData.h>
-#include <REX/Logger.h>
 #include <REL/Relocation.h>
 
 namespace Traversal
