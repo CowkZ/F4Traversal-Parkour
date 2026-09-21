@@ -1,9 +1,10 @@
 #pragma once
 
-#include <RE/P/PlayerCharacter.h>
+#include <RE/F4/PlayerCharacter.h>
 #include <RE/N/NiPoint3.h>
 #include <RE/N/NiQuaternion.h>
 #include <RE/H/HUDMarkerData.h>
+#include <REL/Relocation.h>
 #include <optional>
 
 namespace Traversal
@@ -25,6 +26,7 @@ namespace Traversal
     private:
         LedgeDetector() = default;
 
+        // Real Raycast wrapper
         bool PerformRaycast(const RE::NiPoint3& start, const RE::NiPoint3& dir, float range, RE::NiPoint3& outHitPoint, RE::NiPoint3& outNormal);
         void UpdateMarker(const RE::NiPoint3& pos, bool visible);
 

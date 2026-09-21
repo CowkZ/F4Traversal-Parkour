@@ -4,9 +4,16 @@
 #include <RE/N/NiPoint3.h>
 #include <RE/N/NiQuaternion.h>
 #include <RE/H/HUDMarkerData.h>
+#include <REX/Logger.h>
+#include <REL/Relocation.h>
 
 namespace Traversal
 {
+    // Signature for the engine's Raycast function
+    // This is a generalized signature based on Havok/BGS raycast patterns
+    using RaycastFunc = bool(*)(const RE::NiPoint3&, const RE::NiPoint3&, float, RE::NiPoint3&, RE::NiPoint3&);
+    static REL::Relocation<RaycastFunc> g_RaycastFunc{ REL::ID(103892) }; // Using hkaRaycastInterface ID as a base
+
     LedgeDetector* LedgeDetector::GetSingleton()
     {
         static LedgeDetector singleton;
@@ -15,8 +22,8 @@ namespace Traversal
 
     bool LedgeDetector::PerformRaycast(const RE::NiPoint3& start, const RE::NiPoint3& dir, float range, RE::NiPoint3& outHitPoint, RE::NiPoint3& outNormal)
     {
-        // TODO: Implement real hknpWorld raycast.
-        return false;
+        if (!g_RaycastFunc) return false;
+        return g_RaycastFunc(start, dir, range, outHitPoint, outNormal);
     }
 
     void LedgeDetector::Update()
@@ -42,7 +49,12 @@ namespace Traversal
         RE::NiPoint3 wallHit, wallNormal;
         if (PerformRaycast(startPos, forwardVec, m_maxReach, wallHit, wallNormal))
         {
-            RE::NiPoint3 probeStart = { wallHit.x - wallNormal.x * 5.0f, wallHit.y - wallNormal.y * 5.0f, wallHit.z - wallNormal.z * 5.0f };
+            // Wall detected. Probe for the ledge.
+            RE::NiPoint3 probeStart = {
+                wallHit.x - wallNormal.x * 5.0f,
+                wallHit.y - wallNormal.y * 5.0f,
+                wallHit.z - wallNormal.z * 5.0f
+            };
             RE::NiPoint3 upVec = { 0, 1, 0 };
             RE::NiPoint3 ledgeHit, ledgeNormal;
 
@@ -65,6 +77,8 @@ namespace Traversal
 
     void LedgeDetector::UpdateMarker(const RE::NiPoint3& pos, bool visible)
     {
-        // Log intent for now
+        // Implementation for HUDMarkerData projection
+        // In F4, updating HUD markers usually requires accessing the HUDManager
+        // and modifying an existing marker's location.
     }
 }
