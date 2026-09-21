@@ -1,9 +1,10 @@
 #include "debug.h"
 
-#include <numbers>
+#include "ledge_detector.h"
+
+#include <cmath>
 #include <format>
-#include <RE/N/NiPoint3.h>
-#include <RE/N/NiQuaternion.h>
+#include <numbers>
 
 namespace Debug
 {
@@ -30,46 +31,24 @@ namespace Debug
         RE::SendHUDMessage::ShowHUDMessage(text.c_str(), "", false, false);
     }
 
+    // Nao faz raycast. Serve para conferir a convencao de direcao: ande em linha reta para
+    // a "frente" e compare com a posicao do snapshot anterior (a frente deve coincidir com o
+    // deslocamento: frente=(sin(yaw), cos(yaw))).
     void TestTraversalDetection()
     {
         const auto player = RE::PlayerCharacter::GetSingleton();
-        if (!player) return;
-
-        const auto camera = RE::PlayerCamera::GetSingleton();
-        if (!camera) return;
-
-        RE::NiPoint3 startPos;
-        if (!camera->GetCameraPosition(startPos, true)) return;
-
-        const auto state = camera->GetCameraCurrentState();
-        if (!state) return;
-
-        RE::NiQuaternion rot;
-        state->GetRotation(rot);
-
-        RE::NiPoint3 forwardVec;
-        forwardVec.x = 2.0f * (rot.x * rot.z + rot.w * rot.y);
-        forwardVec.y = 2.0f * (rot.y * rot.z - rot.w * rot.x);
-        forwardVec.z = 1.0f - 2.0f * (rot.x * rot.x + rot.y * rot.y);
-
-        const float range = 150.0f;
-        RE::NiPoint3 endPos;
-        endPos.x = startPos.x + (forwardVec.x * range);
-        endPos.y = startPos.y + (forwardVec.y * range);
-        endPos.z = startPos.z + (forwardVec.z * range);
-
-        bool hit = false;
-
-        if (hit) {
-            RE::SendHUDMessage::ShowHUDMessage("[✋] Objeto Detectado!", "", false, false);
-        } else {
-            std::string debugInfo = std::format(
-                "Raycast Debug:\nPos: {:.1f}, {:.1f}, {:.1f}\nDir: {:.2f}, {:.2f}, {:.2f}",
-                startPos.x, startPos.y, startPos.z, forwardVec.x, forwardVec.y, forwardVec.z);
-
-            RE::SendHUDMessage::ShowHUDMessage(debugInfo.c_str(), "", false, false);
-            REX::INFO("TraversalRaycast: Simulando Raycast. Pos=({:.1f}, {:.1f}, {:.1f}) Dir=({:.2f}, {:.2f}, {:.2f})",
-                startPos.x, startPos.y, startPos.z, forwardVec.x, forwardVec.y, forwardVec.z);
+        if (!player) {
+            return;
         }
+
+        const float yaw = player->data.angle.z;
+        const float fx = std::sin(yaw);
+        const float fy = std::cos(yaw);
+
+        const auto detector = Traversal::LedgeDetector::GetSingleton()->DescribeLast();
+        const auto text = std::format("Frente: {:.2f}, {:.2f}\n{}", fx, fy, detector);
+        RE::SendHUDMessage::ShowHUDMessage(text.c_str(), "", false, false);
+
+        REX::INFO("frente=({:.2f}, {:.2f}) | {}", fx, fy, detector);
     }
 }

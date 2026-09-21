@@ -31,7 +31,8 @@
     - Every commit must end with: `Co-Authored-By: Claude Code <noreply@anthropic.com>`.
 - **Process**: `git add .` $\rightarrow$ `git commit` $\rightarrow$ `git push origin master`.
 
-## Project Architecture
+## Communication
+- **Language**: Always communicate with the user in Portuguese. Thinking/reasoning can be in English, but all output must be in Portuguese.
 - `src/main.cpp`: Entry point, F4SE messaging loop.
 - `src/ledge_detector.cpp/h`: Ledge detection logic (3-ray method) and state management.
 - `src/hotkey.cpp/h`: Input polling thread (detached).

@@ -36,19 +36,27 @@ namespace
     {
         bool wasDown = false;
         bool wasSpaceDown = false;
+        bool wasProjDown = false;
 
         for (;;) {
             const bool gameFocused = GameHasFocus();
             const bool down = gameFocused && (::GetAsyncKeyState(kDebugKey) & 0x8000) != 0;
             const bool spaceDown = gameFocused && (::GetAsyncKeyState(VK_SPACE) & 0x8000) != 0;
+            const bool projDown = gameFocused && (::GetAsyncKeyState(VK_F6) & 0x8000) != 0;
 
             if (down && !wasDown) {
-                // a acao mexe em estado do jogo: precisa rodar na thread principal
                 if (const auto task = F4SE::GetTaskInterface()) {
                     task->AddTask([] {
-                        // Executa ambos os testes de debug simultaneamente para validacao rapida
                         Debug::PlayerSnapshot();
                         Debug::TestTraversalDetection();
+                    });
+                }
+            }
+
+            if (projDown && !wasProjDown) {
+                if (const auto task = F4SE::GetTaskInterface()) {
+                    task->AddTask([] {
+                        Traversal::LedgeDetector::GetSingleton()->ToggleProjection();
                     });
                 }
             }
@@ -63,6 +71,7 @@ namespace
 
             wasDown = down;
             wasSpaceDown = spaceDown;
+            wasProjDown = projDown;
             std::this_thread::sleep_for(std::chrono::milliseconds(25));
         }
     }

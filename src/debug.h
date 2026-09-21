@@ -6,6 +6,6 @@ namespace Debug
     // no log e mostra uma mensagem na HUD.
     void PlayerSnapshot();
 
-    // Teste de detecção: verifica se há algo à frente do jogador
+    // Mostra a direcao da frente (pelo yaw) e o ultimo resultado do detector.
     void TestTraversalDetection();
 }

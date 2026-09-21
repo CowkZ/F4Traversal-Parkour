@@ -1,11 +1,10 @@
 #pragma once
 
-#include <RE/P/PlayerCharacter.h>
-#include <RE/N/NiPoint3.h>
-#include <RE/N/NiQuaternion.h>
-#include <RE/H/HUDMarkerData.h>
-#include <REL/Relocation.h>
-#include <optional>
+// Os tipos RE:: vem do pch.h (forcado pelo xmake). Nada de includes de RE/ aqui.
+
+#include <atomic>
+#include <chrono>
+#include <string>
 
 namespace Traversal
 {
@@ -16,17 +15,27 @@ namespace Traversal
         OnLedge
     };
 
+    enum class LedgeKind
+    {
+        None,
+        Low,     // ate ~90 unidades
+        Medium,  // ate ~150
+        High     // ate ~190
+    };
+
     struct LedgeInfo
     {
-        RE::NiPoint3 position;
-        bool isValid = false;
+        RE::NiPoint3 position{};   // ponto no topo da borda (superficie onde o jogador vai ficar)
+        float        height = 0.0F;  // altura do topo em relacao aos pes do jogador
+        LedgeKind    kind = LedgeKind::None;
+        bool         isValid = false;
     };
 
     struct ScreenPos
     {
-        float x;
-        float y;
-        bool visible = false;
+        float x = 0.0F;
+        float y = 0.0F;
+        bool  visible = false;
     };
 
     class LedgeDetector
@@ -34,29 +43,55 @@ namespace Traversal
     public:
         static LedgeDetector* GetSingleton();
 
+        // Flags globais: podem ser lidas/escritas de qualquer thread.
+        static void SetGameReady(bool a_ready) noexcept;
+        static bool IsGameReady() noexcept;
+        static bool IsEnabled() noexcept;
+        static bool IsClimbing() noexcept;
+
+        // SOMENTE na thread do jogo (via F4SE::GetTaskInterface()->AddTask).
+        void ToggleEnabled();
         void Update();
         void RequestClimb();
+        std::string DescribeLast() const;
 
         const LedgeInfo& GetCurrentLedge() const { return m_currentLedge; }
-        ScreenPos GetLedgeScreenPos() const { return m_screenPos; }
+        ScreenPos        GetLedgeScreenPos() const { return m_screenPos; }
 
     private:
         LedgeDetector() = default;
 
-        bool PerformRaycast(const RE::NiPoint3& start, const RE::NiPoint3& dir, float range, RE::NiPoint3& outHitPoint, RE::NiPoint3& outNormal);
-        void UpdateMarker(const RE::NiPoint3& pos, bool visible);
-        ScreenPos ProjectWorldToScreen(const RE::NiPoint3& worldPos);
+        struct Eval
+        {
+            LedgeKind    kind = LedgeKind::None;
+            RE::NiPoint3 top{};
+            float        height = 0.0F;
+            const char*  reason = "-";
+        };
+
+        Eval         Evaluate(RE::PlayerCharacter* a_player);
+        void         ApplyResult(const Eval& a_eval);
+        void         TickClimb(RE::PlayerCharacter* a_player);
+        void         ResetState();
+        void         UpdateMarker(const RE::NiPoint3& a_pos, bool a_visible);
+        ScreenPos    ProjectWorldToScreen(const RE::NiPoint3& a_pos);
+        void            ToggleProjection();
 
         LedgeInfo m_currentLedge;
         ScreenPos m_screenPos;
-        float m_maxReach = 150.0f;
-        float m_ledgeDepthThreshold = 20.0f;
+        bool        m_projectionEnabled = false;
+        Eval        m_lastEval;
 
-        // Climbing state
-        ClimbState m_climbState = ClimbState::Idle;
-        RE::NiPoint3 m_startPos;
-        RE::NiPoint3 m_targetPos;
-        float m_interpolationTimer = 0.0f;
-        static constexpr float kClimbDuration = 0.3f; // seconds
+        // debounce do indicador
+        LedgeKind m_candidateKind = LedgeKind::None;
+        LedgeKind m_shownKind = LedgeKind::None;
+        int       m_candidateTicks = 0;
+        std::chrono::steady_clock::time_point m_lastMessage{};
+
+        // escalada
+        ClimbState   m_climbState = ClimbState::Idle;
+        RE::NiPoint3 m_startPos{};
+        RE::NiPoint3 m_targetPos{};
+        std::chrono::steady_clock::time_point m_climbStart{};
     };
 }

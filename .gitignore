@@ -1,9 +1,13 @@
-# .gitignore
+# artefatos de build (o CI gera a DLL; nao versione)
 build/
 .xmake/
-*.dll
-*.exe
+dist/
+F4SE/
 *.pdb
-*.obj
-*.log
-.vscode/
+*.dll
+vsxmake*/
+.vs/
+compile_commands.json
+
+# configuracao local de ferramentas
+.claude/settings.local.json

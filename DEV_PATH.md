@@ -16,8 +16,8 @@ Objetivo: Portar as funcionalidades de movimentação avançada (parkour/travers
 - [x] Criar a estrutura de estados (`IsClimbing`, `IsSliding`, etc).
 
 ## FASE 3: Portabilidade da Lógica de Gameplay
-- [x] Implementar detecção de superfícies via Raycasting (detectar paredes). -> *Implementado via hknpWorld e Método de 3 Raios.*
-- [ ] Implementar marcadores visuais de borda (HUD Markers/Mãozinha).
+- [x] Implementar detecção de superfícies via Raycasting (detectar paredes). -> *Implementado via `TESObjectCELL::Pick` + `bhkPickData` (método de 3 raios). AINDA NÃO TESTADO NO JOGO: liga só com F7.*
+- [~] Marcador de borda: texto na HUD ([MAO] ...) implementado no código (não testado no jogo); ícone 2D (mãozinha) pendente (projeção via `NiCamera::WorldPtToScreenPt3`, desenho via Scaleform).
 - [ ] Implementar sistema de animações de escalada (Trigger/Playback).
 - [ ] Portar a matemática de vetores de impulso e escalada do mod original.
 - [x] Vincular as ações a inputs/hotkeys.

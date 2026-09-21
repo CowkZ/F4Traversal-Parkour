@@ -1,5 +1,4 @@
 #include "hotkey.h"
-#include "debug.h"
 #include "ledge_detector.h"
 
 namespace
@@ -23,28 +22,31 @@ namespace
         }
     }
 
-    void UpdateLoop()
-    {
-        if (const auto task = F4SE::GetTaskInterface()) {
-            task->AddTask([] {
-                Traversal::LedgeDetector::GetSingleton()->Update();
-                // Re-schedule ourselves to run every frame (approx)
-                UpdateLoop();
-            });
-        }
-    }
-
     void F4SEAPI OnF4SEMessage(F4SE::MessagingInterface::Message* a_msg)
     {
         if (!a_msg) {
             return;
         }
 
+        using M = F4SE::MessagingInterface;
+
         REX::INFO("mensagem F4SE: {} ({})", MessageName(a_msg->type), a_msg->type);
 
-        if (a_msg->type == F4SE::MessagingInterface::kGameDataReady) {
+        // Este callback dispara so nesses poucos eventos (NAO a cada frame).
+        // O tick periodico do detector vem da thread do hotkey (hotkey.cpp).
+        switch (a_msg->type) {
+        case M::kGameDataReady:
             Hotkey::Start();
-            UpdateLoop();
+            break;
+        case M::kPreLoadGame:
+            Traversal::LedgeDetector::SetGameReady(false);
+            break;
+        case M::kPostLoadGame:
+        case M::kNewGame:
+            Traversal::LedgeDetector::SetGameReady(true);
+            break;
+        default:
+            break;
         }
     }
 }
