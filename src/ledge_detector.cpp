@@ -3,6 +3,20 @@
 #include <algorithm>
 #include <cmath>
 #include <format>
+#include <RE/M/Main.h>
+
+namespace
+{
+    bool IsOnMainThread()
+    {
+        auto* main = RE::Main::GetSingleton();
+        if (!main) {
+            return false;
+        }
+        auto currentThreadId = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Scaleform::GetCurrentThreadId()));
+        return main->threadID == currentThreadId;
+    }
+}
 
 namespace Traversal
 {
@@ -70,12 +84,22 @@ namespace Traversal
 
         RE::NiPoint3 Forward(const RE::PlayerCharacter* a_player)
         {
+            // Game object access must happen on main thread
+            if (!IsOnMainThread()) {
+                return RE::NiPoint3{ 0.0F, 0.0F, 0.0F };
+            }
+
             const float yaw = a_player->data.angle.z;
             return RE::NiPoint3{ std::sin(yaw), std::cos(yaw), 0.0F };
         }
 
         bool IsUiBlocking()
         {
+            // UI access must happen on main thread
+            if (!IsOnMainThread()) {
+                return true; // Assume UI is blocking to be safe
+            }
+
             const auto ui = RE::UI::GetSingleton();
             if (!ui) return true;
             return ui->GetMenuOpen<RE::MainMenu>() ||
@@ -121,12 +145,17 @@ namespace Traversal
 
     void LedgeDetector::ToggleEnabled()
     {
+        // Member variable access should happen on main thread for consistency
+        if (!IsOnMainThread()) {
+            return;
+        }
+
         const bool now = !g_enabled.load();
         ResetState();
         g_enabled.store(now);
         REX::INFO("detector de bordas: {}", now ? "LIGADO" : "desligado");
         RE::SendHUDMessage::ShowHUDMessage(
-            now ? "F4Traversal: detector LIGADO" : "F4Traversal: detector desligado", "", false, false);
+            now ? "F4Traversal: detector LIGADO" : "F4Traversal: desligado", "", false, false);
     }
 
     std::string LedgeDetector::DescribeLast() const
@@ -137,6 +166,13 @@ namespace Traversal
 
     LedgeDetector::Eval LedgeDetector::Evaluate(RE::PlayerCharacter* a_player)
     {
+        // Game object access must happen on main thread
+        if (!IsOnMainThread()) {
+            Eval out;
+            out.reason = "not on main thread";
+            return out;
+        }
+
         Eval out;
         const auto cell = a_player->parentCell;
         if (!cell) { out.reason = "sem celula"; return out; }
@@ -148,7 +184,7 @@ namespace Traversal
         const float oy = pos.y + fwd.y * kStartOffset;
 
         const RE::NiPoint3 wallFrom{ ox, oy, pos.z + kKneeHeight };
-        const RE::NiPoint3 wallTo{ ox + fwd.x * kReach, oy + fwd.y * kReach, pos.z + kKneeHeight };
+        const RE:NiPoint3 wallTo{ ox + fwd.x * kReach, oy + fwd.y * kReach, pos.z + kKneeHeight };
         const RayHit wall = CastRay(cell, wallFrom, wallTo);
         if (!wall.hit) { out.reason = "sem parede"; return out; }
         if (wall.hasNormal && std::fabs(wall.normal.z) > 0.5F) { out.reason = "superficie nao vertical"; return out; }
@@ -222,6 +258,11 @@ namespace Traversal
 
     void LedgeDetector::Update()
     {
+        // Game object access must happen on main thread
+        if (!IsOnMainThread()) {
+            return;
+        }
+
         if (!g_enabled.load()) {
             if (m_climbState != ClimbState::Idle) ResetState();
             return;
@@ -238,6 +279,11 @@ namespace Traversal
 
     void LedgeDetector::TickClimb(RE::PlayerCharacter* a_player)
     {
+        // Game object access must happen on main thread
+        if (!IsOnMainThread()) {
+            return;
+        }
+
         // Abort if game not ready or UI blocked
         if (!g_gameReady.load() || IsUiBlocking()) {
             ResetState();
@@ -265,9 +311,15 @@ namespace Traversal
             m_candidateTicks = 0;
         }
     }
+}
 
     void LedgeDetector::UpdateMarker(const RE::NiPoint3& a_pos, bool a_visible)
     {
+        // Member variable access should happen on main thread for consistency
+        if (!IsOnMainThread()) {
+            return;
+        }
+
         if (m_projectionEnabled) {
             m_screenPos = ProjectWorldToScreen(a_pos);
             m_screenPos.visible = a_visible && m_screenPos.visible;
@@ -278,13 +330,18 @@ namespace Traversal
 
     ScreenPos LedgeDetector::ProjectWorldToScreen(const RE::NiPoint3& a_pos)
     {
+        // Game object access must happen on main thread
+        if (!IsOnMainThread()) {
+            return ScreenPos{};
+        }
+
         ScreenPos out{};
         const auto camera = RE::Main::WorldRootCamera();
         if (!camera) return out;
         float x = 0.0f, y = 0.0f, z = 0.0f;
         if (camera->WorldPtToScreenPt3(a_pos, x, y, z, 10.0f)) {
             out.x = x; out.y = y; out.visible = true;
-            REX::INFO("PROJECAO: ponto=({:.0f}, {:.0f}, {:.0f}) -> screen=({:.3f}, {:.3f}, {:.3f}) visible={}", 
+            REX::INFO("PROJECAO: ponto=({:.0f}, {:.0f}, {:.0f}) -> screen=({:.3f}, {:.3f}, {:.3f}) visible={}",
                 a_pos.x, a_pos.y, a_pos.z, x, y, z, out.visible);
         }
         return out;
@@ -292,12 +349,22 @@ namespace Traversal
 
     void LedgeDetector::ToggleProjection()
     {
+        // Member variable access should happen on main thread for consistency
+        if (!IsOnMainThread()) {
+            return;
+        }
+
         m_projectionEnabled = !m_projectionEnabled;
         REX::INFO("projecao 2D: {}", m_projectionEnabled ? "LIGADA" : "desligada");
     }
 
     void LedgeDetector::RequestClimb()
     {
+        // Game object access must happen on main thread
+        if (!IsOnMainThread()) {
+            return;
+        }
+
         if (!g_enabled.load() || !g_gameReady.load() || m_climbState != ClimbState::Idle) return;
         if (!m_currentLedge.isValid) {
             REX::INFO("escalada pedida, mas nao ha borda valida");

@@ -5,11 +5,30 @@
 #include <cmath>
 #include <format>
 #include <numbers>
+#include <RE/M/Main.h>
+
+namespace
+{
+    bool IsOnMainThread()
+    {
+        auto* main = RE::Main::GetSingleton();
+        if (!main) {
+            return false;
+        }
+        auto currentThreadId = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Scaleform::GetCurrentThreadId()));
+        return main->threadID == currentThreadId;
+    }
+}
 
 namespace Debug
 {
     void PlayerSnapshot()
     {
+        // Game object access must happen on main thread
+        if (!IsOnMainThread()) {
+            return;
+        }
+
         const auto player = RE::PlayerCharacter::GetSingleton();
         if (!player) {
             REX::WARN("PlayerSnapshot: jogador indisponivel (ainda no menu?)");
@@ -36,6 +55,11 @@ namespace Debug
     // deslocamento: frente=(sin(yaw), cos(yaw))).
     void TestTraversalDetection()
     {
+        // Game object access must happen on main thread
+        if (!IsOnMainThread()) {
+            return;
+        }
+
         const auto player = RE::PlayerCharacter::GetSingleton();
         if (!player) {
             return;
