@@ -8,18 +8,18 @@ namespace
     {
         using M = F4SE::MessagingInterface;
         switch (a_type) {
-        case M::kPostLoad:      return "PostLoad";
-        case M.::kPostPostLoad: return "PostPostLoad";
-        case M.::kPreLoadGame:  return "PreLoadGame";
-        case M.::kPostLoadGame: return "PostLoadGame";
-        case M.::kPreSaveGame:  return "PreSaveGame";
-        case M.::kPostSaveGame: return "PostSaveGame";
-        case M.::kDeleteGame:   return "DeleteGame";
-        case M.::kInputLoaded:  return "InputLoaded";
-        case M.::kNewGame:      return "NewGame";
-        case M.::kGameLoaded:   return "GameLoaded";
-        case M.::kGameDataReady:return "GameDataReady";
-        default:                return "?";
+        case M.::kPostLoad:      return "PostLoad";
+        case M.::kPostPostLoad:  return "PostPostLoad";
+        case M.::kPreLoadGame:   return "PreLoadGame";
+        case M.::kPostLoadGame:  return "PostLoadGame";
+        case M.::kPreSaveGame:   return "PreSaveGame";
+        case M.::kPostSaveGame:  return "PostSaveGame";
+        case M.::kDeleteGame:    return "DeleteGame";
+        case M.::kInputLoaded:   return "InputLoaded";
+        case M.::kNewGame:       return "NewGame";
+        case M.::kGameLoaded:    return "GameLoaded";
+        case M.::kGameDataReady: return "GameDataReady";
+        default:                 return "?";
         }
     }
 
@@ -30,7 +30,7 @@ namespace
             Traversal::LedgeDetector::GetSingleton()->Update();
             
             // Reschedule the next update
-            ScheduledUpdateTask();
+            task->AddTask(ScheduledUpdateTask);
         }
     }
 
