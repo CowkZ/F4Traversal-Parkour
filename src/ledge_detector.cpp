@@ -381,4 +381,4 @@ namespace Traversal
     }
     }
 
-} // namespace Traversal
+}
