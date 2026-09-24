@@ -184,7 +184,7 @@ namespace Traversal
         const float oy = pos.y + fwd.y * kStartOffset;
 
         const RE::NiPoint3 wallFrom{ ox, oy, pos.z + kKneeHeight };
-        const RE:NiPoint3 wallTo{ ox + fwd.x * kReach, oy + fwd.y * kReach, pos.z + kKneeHeight };
+        const RE::NiPoint3 wallTo{ ox + fwd.x * kReach, oy + fwd.y * kReach, pos.z + kKneeHeight };
         const RayHit wall = CastRay(cell, wallFrom, wallTo);
         if (!wall.hit) { out.reason = "sem parede"; return out; }
         if (wall.hasNormal && std::fabs(wall.normal.z) > 0.5F) { out.reason = "superficie nao vertical"; return out; }
@@ -311,7 +311,6 @@ namespace Traversal
             m_candidateTicks = 0;
         }
     }
-}
 
     void LedgeDetector::UpdateMarker(const RE::NiPoint3& a_pos, bool a_visible)
     {
@@ -381,3 +380,5 @@ namespace Traversal
         REX::INFO("escalada iniciada: de ({:.0f}, {:.0f}, {:.0f}) para ({:.0f}, {:.0f}, {:.0f})", m_startPos.x, m_startPos.y, m_startPos.z, m_targetPos.x, m_targetPos.y, m_targetPos.z);
     }
 }
+
+} // namespace Traversal
