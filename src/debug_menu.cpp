@@ -1,6 +1,5 @@
 #include "debug_menu.h"
 #include "ledge_detector.h"
-#include <RE/F4SE/F4SE.h>
 #include <RE/H/hknpWorld.h>
 #include <format>
 #include <string>
