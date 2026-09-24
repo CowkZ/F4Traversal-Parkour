@@ -9,36 +9,26 @@ namespace
         using M = F4SE::MessagingInterface;
         switch (a_type) {
         case M::kPostLoad:      return "PostLoad";
-        case M::kPostPostLoad:  return "PostPostLoad";
-        case M::kPreLoadGame:   return "PreLoadGame";
-        case M::kPostLoadGame:  return "PostLoadGame";
-        case M::kPreSaveGame:   return "PreSaveGame";
-        case M::kPostSaveGame:  return "PostSaveGame";
-        case M::kDeleteGame:    return "DeleteGame";
-        case M::kInputLoaded:   return "InputLoaded";
-        case M::kNewGame:       return "NewGame";
-        case M::kGameLoaded:    return "GameLoaded";
-        case M::kGameDataReady: return "GameDataReady";
-        default:                 return "?";
-        }
-    }
-
-    void ScheduledUpdateTask()
-    {
-        if (const auto task = F4SE::GetTaskInterface()) {
-            // Call the detector update
-            Traversal::LedgeDetector::GetSingleton()->Update();
-            
-            // Reschedule the next update
-            task->AddTask(ScheduledUpdateTask);
+        case M.::kPostPostLoad: return "PostPostLoad";
+        case M.::kPreLoadGame:  return "PreLoadGame";
+        case M.::kPostLoadGame: return "PostLoadGame";
+        case M.::kPreSaveGame:  return "PreSaveGame";
+        case M.::kPostSaveGame: return "PostSaveGame";
+        case M.::kDeleteGame:   return "DeleteGame";
+        case M.::kInputLoaded:  return "InputLoaded";
+        case M.::kNewGame:      return "NewGame";
+        case M.::kGameLoaded:   return "GameLoaded";
+        case M.::kGameDataReady:return "GameDataReady";
+        default:                return "?";
         }
     }
 
     void UpdateLoop()
     {
-        if (const auto task = F4SE::GetTaskInterface()) {
-            task->AddTask(ScheduledUpdateTask);
-        }
+        // Temporarily disabled to test if update loop causes freeze
+        // if (const auto task = F4SE::GetTaskInterface()) {
+        //     task->AddTask(ScheduledUpdateTask);
+        // }
     }
 
     void F4SEAPI OnF4SEMessage(F4SE::MessagingInterface::Message* a_msg)
@@ -51,7 +41,7 @@ namespace
 
         if (a_msg->type == F4SE::MessagingInterface::kGameDataReady) {
             Hotkey::Start();
-            UpdateLoop();
+            // UpdateLoop(); // disabled for testing
         }
     }
 }
