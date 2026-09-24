@@ -379,6 +379,6 @@ namespace Traversal
         g_climbing.store(true);
         REX::INFO("escalada iniciada: de ({:.0f}, {:.0f}, {:.0f}) para ({:.0f}, {:.0f}, {:.0f})", m_startPos.x, m_startPos.y, m_startPos.z, m_targetPos.x, m_targetPos.y, m_targetPos.z);
     }
-}
+    }
 
 } // namespace Traversal
