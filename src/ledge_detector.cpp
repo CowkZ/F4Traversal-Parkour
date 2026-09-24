@@ -238,6 +238,12 @@ namespace Traversal
 
     void LedgeDetector::TickClimb(RE::PlayerCharacter* a_player)
     {
+        // Abort if game not ready or UI blocked
+        if (!g_gameReady.load() || IsUiBlocking()) {
+            ResetState();
+            return;
+        }
+
         const float elapsed = std::chrono::duration<float>(std::chrono::steady_clock::now() - m_climbStart).count();
         const float t = std::clamp(elapsed / kClimbDuration, 0.0F, 1.0F);
         RE::NiPoint3 p{};
@@ -301,7 +307,7 @@ namespace Traversal
         if (!player || !player->loadedData || !player->parentCell || IsUiBlocking()) return;
         const RE::NiPoint3 fwd = Forward(player);
         m_startPos = player->GetPosition();
-        m_targetPos = RE::NiPoint3{ m_currentLedge.position.x + fwd.x * kClimbForward, m_currentLedge.position.y + fwd.y * kClimbForward, m_currentLedge.position.z + 2.0F };
+        m_targetPos = RE::NiPoint3{ m_currentLedge.position.x + fwd.x * kClimbForward, m_currentLedge.position.y + fwd.y * kClimbForward, m_currentLedge.position.z };
         m_climbStart = std::chrono::steady_clock::now();
         m_climbState = ClimbState::Interpolating;
         g_climbing.store(true);

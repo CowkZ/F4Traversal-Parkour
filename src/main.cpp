@@ -1,4 +1,5 @@
 #include "hotkey.h"
+
 #include "debug.h"
 #include "ledge_detector.h"
 
@@ -9,7 +10,7 @@ namespace
         using M = F4SE::MessagingInterface;
         switch (a_type) {
         case M::kPostLoad:      return "PostLoad";
-        case M::kPostPostLoad:  return "PostPostLoad";
+        case M:kPostPostLoad:   return "PostPostLoad";
         case M::kPreLoadGame:   return "PreLoadGame";
         case M::kPostLoadGame:  return "PostLoadGame";
         case M::kPreSaveGame:   return "PreSaveGame";
@@ -23,12 +24,28 @@ namespace
         }
     }
 
+    bool g_updateTaskScheduled = false;
+
+    void UpdateTask()
+    {
+        g_updateTaskScheduled = false;
+        if (auto* detector = Traversal::LedgeDetector::GetSingleton())
+        {
+            detector->Update();
+        }
+        // Reschedule for next update
+        UpdateLoop();
+    }
+
     void UpdateLoop()
     {
-        // Temporarily disabled to test if update loop causes freeze
-        // if (const auto task = F4SE::GetTaskInterface()) {
-        //     task->AddTask(ScheduledUpdateTask);
-        // }
+        if (g_updateTaskScheduled) {
+            return; // already scheduled
+        }
+        if (const auto task = F4SE::GetTaskInterface()) {
+            g_updateTaskScheduled = true;
+            task->AddTask(UpdateTask);
+        }
     }
 
     void F4SEAPI OnF4SEMessage(F4SE::MessagingInterface::Message* a_msg)
@@ -41,14 +58,14 @@ namespace
 
         if (a_msg->type == F4SE::MessagingInterface::kGameDataReady) {
             Hotkey::Start();
-            // UpdateLoop(); // disabled for testing
+            UpdateLoop(); // start the update loop
         }
     }
 }
 
 F4SE_PLUGIN_LOAD(const F4SE::LoadInterface* a_f4se)
 {
-    F4SE::Init(a_f4se);
+    F4SE::Init(a_fse);
 
     REX::INFO("F4Traversal carregado");
 
