@@ -5,12 +5,16 @@
 
 namespace
 {
+    const char* MessageName(std::uint32_t a_type) noexcept;
+    void UpdateTask();
+    void UpdateLoop();
+
     const char* MessageName(std::uint32_t a_type) noexcept
     {
         using M = F4SE::MessagingInterface;
         switch (a_type) {
         case M::kPostLoad:      return "PostLoad";
-        case M:kPostPostLoad:   return "PostPostLoad";
+        case M::kPostPostLoad:  return "PostPostLoad";
         case M::kPreLoadGame:   return "PreLoadGame";
         case M::kPostLoadGame:  return "PostLoadGame";
         case M::kPreSaveGame:   return "PreSaveGame";
@@ -47,6 +51,7 @@ namespace
             task->AddTask(UpdateTask);
         }
     }
+}
 
     void F4SEAPI OnF4SEMessage(F4SE::MessagingInterface::Message* a_msg)
     {
@@ -65,7 +70,7 @@ namespace
 
 F4SE_PLUGIN_LOAD(const F4SE::LoadInterface* a_f4se)
 {
-    F4SE::Init(a_fse);
+    F4SE::Init(a_f4se);
 
     REX::INFO("F4Traversal carregado");
 
